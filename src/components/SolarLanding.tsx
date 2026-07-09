@@ -4,10 +4,17 @@ import {
   Menu, X, MessageCircle, ChevronRight,
   CheckCircle, ChevronLeft,
 } from 'lucide-react'
+import milenioLogo from '@/assets/milenio-logo.png.asset.json'
 
 const PHONE     = '+52 33 1125 9093'
 const PHONE_RAW = '523311259093'
 const WA_URL    = `https://wa.me/${PHONE_RAW}?text=${encodeURIComponent('Hola, quisiera una cotización gratuita de paneles solares.')}`
+
+const HERO_SLIDES = [
+  'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  'https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  'https://images.pexels.com/photos/356036/pexels-photo-356036.jpeg?auto=compress&cs=tinysrgb&w=1600',
+]
 
 const NAV = [
   { label: 'Inicio',    href: '#inicio' },
