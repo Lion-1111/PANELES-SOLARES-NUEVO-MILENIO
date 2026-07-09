@@ -4,7 +4,7 @@ import {
   Menu, X, MessageCircle, ChevronRight,
   CheckCircle, ChevronLeft,
 } from 'lucide-react'
-import milenioLogo from '@/assets/milenio-logo.png.asset.json'
+import milenioLogo from '@/assets/milenio-logo-transparent.png.asset.json'
 
 const PHONE     = '+52 33 1125 9093'
 const PHONE_RAW = '523311259093'
@@ -160,16 +160,15 @@ function Navbar() {
       }}>
         <a href="#inicio" style={{
           display: 'flex', alignItems: 'center', flexShrink: 0,
-          background: '#fff',
-          padding: '4px 12px',
-          borderRadius: 8,
-          boxShadow: scrolled ? 'none' : '0 2px 10px rgba(0,0,0,0.15)',
-          transition: 'box-shadow 0.28s',
         }}>
           <img
             src={milenioLogo.url}
             alt="Nuevo Milenio Calentadores Solares"
-            style={{ height: 44, width: 'auto', display: 'block' }}
+            style={{
+              height: 52, width: 'auto', display: 'block',
+              filter: scrolled ? 'none' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.45))',
+              transition: 'filter 0.28s',
+            }}
           />
         </a>
 
