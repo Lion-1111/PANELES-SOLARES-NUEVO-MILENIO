@@ -4,10 +4,17 @@ import {
   Menu, X, MessageCircle, ChevronRight,
   CheckCircle, ChevronLeft,
 } from 'lucide-react'
+import milenioLogo from '@/assets/milenio-logo.png.asset.json'
 
 const PHONE     = '+52 33 1125 9093'
 const PHONE_RAW = '523311259093'
 const WA_URL    = `https://wa.me/${PHONE_RAW}?text=${encodeURIComponent('Hola, quisiera una cotización gratuita de paneles solares.')}`
+
+const HERO_SLIDES = [
+  'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  'https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  'https://images.pexels.com/photos/356036/pexels-photo-356036.jpeg?auto=compress&cs=tinysrgb&w=1600',
+]
 
 const NAV = [
   { label: 'Inicio',    href: '#inicio' },
@@ -151,20 +158,19 @@ function Navbar() {
         maxWidth: 1200, margin: '0 auto', padding: '0 var(--pad)',
         height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <a href="#inicio" style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0 }}>
-          <div style={{
-            width: 34, height: 34, background: 'var(--amber)', borderRadius: 8,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Sun size={18} color="#fff" strokeWidth={2.2} />
-          </div>
-          <span style={{
-            fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 17,
-            color: scrolled ? 'var(--ink)' : '#fff',
-            transition: 'color 0.28s', letterSpacing: '-0.3px',
-          }}>
-            Solar<span style={{ color: 'var(--amber)' }}>GDL</span>
-          </span>
+        <a href="#inicio" style={{
+          display: 'flex', alignItems: 'center', flexShrink: 0,
+          background: '#fff',
+          padding: '4px 12px',
+          borderRadius: 8,
+          boxShadow: scrolled ? 'none' : '0 2px 10px rgba(0,0,0,0.15)',
+          transition: 'box-shadow 0.28s',
+        }}>
+          <img
+            src={milenioLogo.url}
+            alt="Nuevo Milenio Calentadores Solares"
+            style={{ height: 44, width: 'auto', display: 'block' }}
+          />
         </a>
 
         {/* Desktop */}
@@ -220,13 +226,29 @@ function Navbar() {
 
 /* ══════════════════════ HERO ══════════════════════ */
 function Hero() {
+  const [slide, setSlide] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSlide(s => (s + 1) % HERO_SLIDES.length)
+    }, 5000)
+    return () => clearInterval(id)
+  }, [])
   return (
     <section id="inicio" style={{ position: 'relative', minHeight: '100svh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-      <img
-        src="https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg?auto=compress&cs=tinysrgb&w=1600"
-        alt="Paneles solares en techo residencial"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%' }}
-      />
+      {HERO_SLIDES.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt="Paneles solares"
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center 35%',
+            opacity: slide === i ? 1 : 0,
+            transform: slide === i ? 'scale(1.06)' : 'scale(1)',
+            transition: 'opacity 1.4s ease, transform 6s ease-out',
+          }}
+        />
+      ))}
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,8,0.60)' }} />
 
       <div style={{
