@@ -226,13 +226,29 @@ function Navbar() {
 
 /* ══════════════════════ HERO ══════════════════════ */
 function Hero() {
+  const [slide, setSlide] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSlide(s => (s + 1) % HERO_SLIDES.length)
+    }, 5000)
+    return () => clearInterval(id)
+  }, [])
   return (
     <section id="inicio" style={{ position: 'relative', minHeight: '100svh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-      <img
-        src="https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg?auto=compress&cs=tinysrgb&w=1600"
-        alt="Paneles solares en techo residencial"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%' }}
-      />
+      {HERO_SLIDES.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt="Paneles solares"
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center 35%',
+            opacity: slide === i ? 1 : 0,
+            transform: slide === i ? 'scale(1.06)' : 'scale(1)',
+            transition: 'opacity 1.4s ease, transform 6s ease-out',
+          }}
+        />
+      ))}
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,8,0.60)' }} />
 
       <div style={{
