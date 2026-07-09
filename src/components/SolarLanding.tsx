@@ -158,20 +158,19 @@ function Navbar() {
         maxWidth: 1200, margin: '0 auto', padding: '0 var(--pad)',
         height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <a href="#inicio" style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0 }}>
-          <div style={{
-            width: 34, height: 34, background: 'var(--amber)', borderRadius: 8,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Sun size={18} color="#fff" strokeWidth={2.2} />
-          </div>
-          <span style={{
-            fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 17,
-            color: scrolled ? 'var(--ink)' : '#fff',
-            transition: 'color 0.28s', letterSpacing: '-0.3px',
-          }}>
-            Solar<span style={{ color: 'var(--amber)' }}>GDL</span>
-          </span>
+        <a href="#inicio" style={{
+          display: 'flex', alignItems: 'center', flexShrink: 0,
+          background: '#fff',
+          padding: '4px 12px',
+          borderRadius: 8,
+          boxShadow: scrolled ? 'none' : '0 2px 10px rgba(0,0,0,0.15)',
+          transition: 'box-shadow 0.28s',
+        }}>
+          <img
+            src={milenioLogo.url}
+            alt="Nuevo Milenio Calentadores Solares"
+            style={{ height: 44, width: 'auto', display: 'block' }}
+          />
         </a>
 
         {/* Desktop */}
