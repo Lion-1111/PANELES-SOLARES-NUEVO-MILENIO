@@ -4,11 +4,10 @@ import {
   Menu, X, MessageCircle, ChevronRight,
   CheckCircle, ChevronLeft,
 } from 'lucide-react'
-import milenioLogo from '@/assets/milenio-logo-transparent.png.asset.json'
 
-const PHONE     = '+52 33 1125 9093'
+const PHONE = '+52 33 1125 9093'
 const PHONE_RAW = '523311259093'
-const WA_URL    = `https://wa.me/${PHONE_RAW}?text=${encodeURIComponent('Hola, quisiera una cotización gratuita de paneles solares.')}`
+const WA_URL = `https://wa.me/${PHONE_RAW}?text=${encodeURIComponent('Hola, quisiera una cotización gratuita de paneles solares.')}`
 
 const HERO_SLIDES = [
   'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg?auto=compress&cs=tinysrgb&w=1600',
@@ -17,11 +16,11 @@ const HERO_SLIDES = [
 ]
 
 const NAV = [
-  { label: 'Inicio',    href: '#inicio' },
+  { label: 'Inicio', href: '#inicio' },
   { label: 'Productos', href: '#productos' },
-  { label: 'Beneficios',href: '#beneficios' },
+  { label: 'Beneficios', href: '#beneficios' },
   { label: 'Cobertura', href: '#cobertura' },
-  { label: 'Contacto',  href: '#contacto' },
+  { label: 'Contacto', href: '#contacto' },
 ]
 
 const PRODUCTS = [
@@ -85,22 +84,22 @@ const PRODUCTS = [
 
 const BENEFITS = [
   { icon: Shield, num: '01', title: '5 años de garantía', desc: 'En equipo e instalación. Si algo falla, lo resolvemos sin costos.' },
-  { icon: Zap,    num: '02', title: 'Ahorra desde el día 1', desc: 'La mayoría recupera su inversión en menos de 4 años.' },
-  { icon: Sun,    num: '03', title: 'Precio de fábrica', desc: 'Sin distribuidores. El ahorro va directo a tu bolsillo.' },
-  { icon: Phone,  num: '04', title: 'Servicio local en GDL', desc: 'Equipo local, respuesta rápida y seguimiento real posventa.' },
+  { icon: Zap, num: '02', title: 'Ahorra desde el día 1', desc: 'La mayoría recupera su inversión en menos de 4 años.' },
+  { icon: Sun, num: '03', title: 'Precio de fábrica', desc: 'Sin distribuidores. El ahorro va directo a tu bolsillo.' },
+  { icon: Phone, num: '04', title: 'Servicio local en GDL', desc: 'Equipo local, respuesta rápida y seguimiento real posventa.' },
 ]
 
 const HOURS = [
   { day: 'Lunes – Viernes', range: '9:00 AM – 7:00 PM', open: true },
-  { day: 'Sábado',          range: '9:00 AM – 3:00 PM', open: true },
-  { day: 'Domingo',         range: 'Cerrado',            open: false },
+  { day: 'Sábado', range: '9:00 AM – 3:00 PM', open: true },
+  { day: 'Domingo', range: 'Cerrado', open: false },
 ]
 
 const ZONES = [
-  { name: 'Guadalajara',  desc: 'Centro, Chapalita, Providencia, Oblatos…' },
-  { name: 'Zapopan',      desc: 'Andares, Jardines, Santa Anita, Colomos…' },
-  { name: 'Tlaquepaque',  desc: 'San Pedro, El Álamo, Las Pintas…' },
-  { name: 'Tonalá',       desc: 'Tonalá Centro, San Antonio, Los Jazmines…' },
+  { name: 'Guadalajara', desc: 'Centro, Chapalita, Providencia, Oblatos…' },
+  { name: 'Zapopan', desc: 'Andares, Jardines, Santa Anita, Colomos…' },
+  { name: 'Tlaquepaque', desc: 'San Pedro, El Álamo, Las Pintas…' },
+  { name: 'Tonalá', desc: 'Tonalá Centro, San Antonio, Los Jazmines…' },
 ]
 
 /* ══════════════════════ RESPONSIVE STYLES ══════════════════════ */
@@ -162,10 +161,11 @@ function Navbar() {
           display: 'flex', alignItems: 'center', flexShrink: 0,
         }}>
           <img
-            src={milenioLogo.url}
+            src="/logo-transparente.png?v=3"
             alt="Nuevo Milenio Calentadores Solares"
             style={{
               height: 52, width: 'auto', display: 'block',
+              mixBlendMode: scrolled ? 'normal' : 'multiply',
               filter: scrolled ? 'none' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.45))',
               transition: 'filter 0.28s',
             }}
@@ -315,9 +315,9 @@ function Hero() {
         }}>
           {[
             ['Hasta 80 %', 'ahorro en electricidad'],
-            ['5 años',     'de garantía incluida'],
-            ['Fin. 12m',   '3, 6 y 12 meses'],
-            ['Precio',     'directo de fábrica'],
+            ['5 años', 'de garantía incluida'],
+            ['Fin. 12m', '3, 6 y 12 meses'],
+            ['Precio', 'directo de fábrica'],
           ].map(([val, label]) => (
             <div key={label}>
               <p style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(17px,3vw,22px)', color: '#fff', letterSpacing: '-0.3px' }}>{val}</p>
@@ -332,7 +332,7 @@ function Hero() {
 
 /* ══════════════════════ PRODUCTS CAROUSEL ══════════════════════ */
 function Products() {
-  const trackRef  = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
 
   const scrollTo = useCallback((idx: number) => {
@@ -528,6 +528,49 @@ function ProductCard({ product: p, index, total }: { product: typeof PRODUCTS[0]
   )
 }
 
+/* ══════════════════════ VIDEO PROJECT ══════════════════════ */
+function ProjectVideo() {
+  return (
+    <section style={{ padding: 'var(--section) var(--pad)', background: 'var(--ink)', color: '#fff' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 40, maxWidth: 680, margin: '0 auto 40px' }}>
+          <p style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase',
+            color: 'var(--amber)', marginBottom: 12,
+          }}>
+            Nuestro Trabajo en Acción
+          </p>
+          <h2 style={{
+            fontFamily: 'var(--font-display)', fontWeight: 900,
+            fontSize: 'clamp(28px, 5vw, 44px)', color: '#fff',
+            lineHeight: 1.1, letterSpacing: '-0.6px', marginBottom: 16,
+          }}>
+            Calidad garantizada,<br />paso a paso.
+          </h2>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>
+            Conoce cómo nuestros expertos instalan cada sistema cuidando hasta el mínimo detalle. Tu inversión está en las mejores manos.
+          </p>
+        </div>
+
+        <div style={{
+          position: 'relative',
+          borderRadius: 20, overflow: 'hidden',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          maxWidth: 960, margin: '0 auto',
+          background: '#000',
+        }}>
+          <video
+            src="/proyecto-video.mp4"
+            autoPlay loop muted playsInline controls
+            style={{ width: '100%', maxHeight: '75vh', objectFit: 'contain', display: 'block' }}
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ══════════════════════ BENEFITS ══════════════════════ */
 function Benefits() {
   return (
@@ -564,24 +607,30 @@ function Benefits() {
           </div>
 
           {/* Right */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {BENEFITS.map((item, i) => (
-              <div key={item.num} style={{
-                display: 'flex', gap: 20, alignItems: 'flex-start',
-                padding: '26px 0',
-                borderBottom: i < BENEFITS.length - 1 ? '1px solid var(--line)' : 'none',
-              }}>
-                <span style={{
-                  fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 12,
-                  color: 'var(--ink-4)', letterSpacing: '1px', minWidth: 24, paddingTop: 2,
-                }}>{item.num}</span>
-                <div>
-                  <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 17, color: 'var(--ink)', marginBottom: 6 }}>{item.title}</h3>
-                  <p style={{ fontSize: 14, color: 'var(--ink-3)', lineHeight: 1.65 }}>{item.desc}</p>
+          <div style={{ flex: 1, minWidth: 0, paddingBottom: 40 }}>
+            {BENEFITS.map((item, i) => {
+              const Icon = item.icon
+              return (
+                <div key={item.num} style={{
+                  display: 'flex', gap: 20, alignItems: 'flex-start',
+                  padding: '24px 0',
+                  borderBottom: i < BENEFITS.length - 1 ? '1px solid var(--line)' : 'none',
+                }}>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                    background: 'var(--amber-light)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon size={18} color="var(--amber)" strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 17, color: 'var(--ink)', marginBottom: 6 }}>{item.title}</h3>
+                    <p style={{ fontSize: 14, color: 'var(--ink-3)', lineHeight: 1.65 }}>{item.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
+
         </div>
       </div>
     </section>
@@ -791,6 +840,7 @@ export default function SolarLanding() {
       <main>
         <Hero />
         <Products />
+        <ProjectVideo />
         <Benefits />
         <Coverage />
         <Hours />
