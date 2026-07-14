@@ -5,6 +5,34 @@ import {
   CheckCircle, ChevronLeft,
 } from 'lucide-react'
 
+/** Dismiss the HTML skeleton overlay once React mounts */
+function useDismissSkeleton() {
+  useEffect(() => {
+    const el = document.getElementById('hero-skeleton')
+    if (!el) return
+    el.classList.add('hidden')
+    const timer = setTimeout(() => el.remove(), 500)
+    return () => clearTimeout(timer)
+  }, [])
+}
+
+/** Returns a ref that fires once when the element enters the viewport */
+function useInView<T extends Element>(options?: IntersectionObserverInit) {
+  const ref = useRef<T>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || inView) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect() } },
+      { rootMargin: '200px', ...options }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [inView])
+  return { ref, inView }
+}
+
 const PHONE = '+52 33 1125 9093'
 const PHONE_RAW = '523311259093'
 const WA_URL = `https://wa.me/${PHONE_RAW}?text=${encodeURIComponent('Hola, quisiera una cotización gratuita de paneles solares.')}`
@@ -38,20 +66,7 @@ const PRODUCTS = [
     img: 'https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg?auto=compress&cs=tinysrgb&w=800',
     highlight: true,
   },
-  {
-    tag: 'Ahorro inmediato',
-    name: 'Calentadores Solares de Agua',
-    desc: 'Agua caliente todo el año sin gastar gas. Funciona con luz solar directa e indirecta. Ideal para casas y negocios.',
-    features: [
-      'Tubos de vacío de borosilicato',
-      'Tanque acero inoxidable',
-      'Respaldo eléctrico integrado',
-      'Ahorra hasta 80 % en gas LP',
-      '5 años de garantía',
-    ],
-    img: 'https://images.pexels.com/photos/433308/pexels-photo-433308.jpeg?auto=compress&cs=tinysrgb&w=800',
-    highlight: false,
-  },
+
   {
     tag: 'Sin apagones',
     name: 'Sistema con Batería de Respaldo',
@@ -143,7 +158,7 @@ function Navbar() {
   }, [])
 
   const textColor = scrolled ? 'var(--ink-3)' : 'rgba(255,255,255,0.82)'
-  const textHover  = scrolled ? 'var(--ink)'   : '#fff'
+  const textHover = scrolled ? 'var(--ink)' : '#fff'
 
   return (
     <header style={{
@@ -162,7 +177,7 @@ function Navbar() {
         }}>
           <img
             src="/logo-transparente.png?v=3"
-            alt="Nuevo Milenio Calentadores Solares"
+            alt="Nuevo Milenio Paneles Solares"
             style={{
               height: 52, width: 'auto', display: 'block',
               mixBlendMode: scrolled ? 'normal' : 'multiply',
@@ -238,7 +253,11 @@ function Hero() {
         <img
           key={src}
           src={src}
-          alt="Paneles solares"
+          alt={i === 0 ? 'Instalación de paneles solares en Guadalajara' : 'Paneles solares residenciales'}
+          /* Only eagerly load & prioritize the first slide */
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchPriority={i === 0 ? 'high' : 'low'}
+          decoding={i === 0 ? 'sync' : 'async'}
           style={{
             position: 'absolute', inset: 0, width: '100%', height: '100%',
             objectFit: 'cover', objectPosition: 'center 35%',
@@ -275,7 +294,7 @@ function Hero() {
           maxWidth: 460, lineHeight: 1.7, marginBottom: 36,
           animation: 'fadeUp 0.5s 0.12s ease both',
         }}>
-          Instalamos paneles solares y calentadores de agua con 5 años de garantía. Precio de fábrica y financiamiento a 12 meses.
+          Instalamos paneles solares con 5 años de garantía. Precio de fábrica y financiamiento disponible.
         </p>
 
         <div style={{
@@ -316,7 +335,7 @@ function Hero() {
           {[
             ['Hasta 80 %', 'ahorro en electricidad'],
             ['5 años', 'de garantía incluida'],
-            ['Fin. 12m', '3, 6 y 12 meses'],
+            ['Financiamiento', 'disponible a tu medida'],
             ['Precio', 'directo de fábrica'],
           ].map(([val, label]) => (
             <div key={label}>
@@ -530,6 +549,25 @@ function ProductCard({ product: p, index, total }: { product: typeof PRODUCTS[0]
 
 /* ══════════════════════ VIDEO PROJECT ══════════════════════ */
 function ProjectVideo() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (videoRef.current) {
+        if (entry.isIntersecting) {
+          videoRef.current.play().catch(e => console.warn('Autoplay bloqueado:', e))
+        } else {
+          videoRef.current.pause()
+        }
+      }
+    }, { threshold: 0.5 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
   return (
     <section style={{ padding: 'var(--section) var(--pad)', background: 'var(--ink)', color: '#fff' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -552,17 +590,23 @@ function ProjectVideo() {
           </p>
         </div>
 
-        <div style={{
-          position: 'relative',
-          borderRadius: 20, overflow: 'hidden',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          maxWidth: 960, margin: '0 auto',
-          background: '#000',
-        }}>
+        <div
+          ref={containerRef}
+          style={{
+            position: 'relative',
+            borderRadius: 20, overflow: 'hidden',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            maxWidth: 960, margin: '0 auto',
+            background: '#000', minHeight: 320,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
           <video
-            src="/proyecto-video.mp4"
-            autoPlay loop muted playsInline controls
+            ref={videoRef}
+            src="/pagina web panel solar.mp4"
+            loop controls playsInline
+            preload="metadata"
             style={{ width: '100%', maxHeight: '75vh', objectFit: 'contain', display: 'block' }}
           />
         </div>
@@ -683,30 +727,47 @@ function Coverage() {
             </div>
           </div>
 
-          {/* Map */}
-          <div style={{
-            borderRadius: 14, overflow: 'hidden',
-            border: '1px solid var(--line)',
-            boxShadow: 'var(--shadow-md)',
-            height: 400,
-          }}>
-            <iframe
-              title="Zona Metropolitana de Guadalajara"
-              src="https://maps.google.com/maps?q=Guadalajara+Jalisco+Mexico&output=embed&z=11&hl=es"
-              width="100%" height="100%"
-              style={{ border: 0, display: 'block' }}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
+          {/* Map — deferred until visible */}
+          <LazyMap />
         </div>
       </div>
     </section>
   )
 }
 
+function LazyMap() {
+  const { ref, inView } = useInView<HTMLDivElement>()
+  return (
+    <div
+      ref={ref}
+      style={{
+        borderRadius: 14, overflow: 'hidden',
+        border: '1px solid var(--line)',
+        boxShadow: 'var(--shadow-md)',
+        height: 400,
+        background: '#f0ede6',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      {inView ? (
+        <iframe
+          title="Zona Metropolitana de Guadalajara"
+          src="https://maps.google.com/maps?q=Guadalajara+Jalisco+Mexico&output=embed&z=11&hl=es"
+          width="100%" height="100%"
+          style={{ border: 0, display: 'block' }}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      ) : (
+        <MapPin size={28} color="var(--amber)" />
+      )}
+    </div>
+  )
+}
+
 /* ══════════════════════ HOURS ══════════════════════ */
 function Hours() {
+
   return (
     <section style={{ padding: 'calc(var(--section) * 0.7) var(--pad)', background: 'var(--bg-2)', borderTop: '1px solid var(--line)' }}>
       <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
@@ -798,7 +859,7 @@ function Footer() {
             Solar<span style={{ color: 'var(--amber)' }}>GDL</span>
           </span>
         </div>
-        <p style={{ fontSize: 12 }}>Paneles y Calentadores Solares · Guadalajara, Jalisco</p>
+        <p style={{ fontSize: 12 }}>Paneles Solares · Guadalajara, Jalisco</p>
         <a href={`tel:${PHONE_RAW}`} style={{ display: 'flex', alignItems: 'center', gap: 7, color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 500, transition: 'color 0.2s' }}
           onMouseEnter={e => e.currentTarget.style.color = '#fff'}
           onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
@@ -833,14 +894,17 @@ function WhatsAppFAB() {
 
 /* ══════════════════════ APP ══════════════════════ */
 export default function SolarLanding() {
+  // Dismiss the HTML loading skeleton immediately on first paint
+  useDismissSkeleton()
+
   return (
     <>
       <style>{CSS}</style>
       <Navbar />
       <main>
         <Hero />
-        <Products />
         <ProjectVideo />
+        <Products />
         <Benefits />
         <Coverage />
         <Hours />
