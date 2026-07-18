@@ -11,17 +11,11 @@ function useDismissSkeleton() {
     const el = document.getElementById('hero-skeleton')
     if (!el) return
     
-    // Hold the loading screen for an elegant 1.8s before fading out
+    // Show for 800ms then fade out quickly
     const fadeTimer = setTimeout(() => {
       el.classList.add('hidden')
-      
-      // Remove from DOM after opacity transition completes
-      const removeTimer = setTimeout(() => {
-        el.remove()
-      }, 500)
-      
-      return () => clearTimeout(removeTimer)
-    }, 1800)
+      setTimeout(() => el.remove(), 600)
+    }, 800)
     
     return () => clearTimeout(fadeTimer)
   }, [])
@@ -193,61 +187,32 @@ const CSS = `
     animation: pulse-glow 6s infinite ease-in-out;
   }
 
-  @keyframes marquee {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  .marquee-track {
-    display: flex;
-    gap: 20px;
-    width: max-content;
-    animation: marquee 18s linear infinite;
-    will-change: transform;
-  }
-  .marquee-track:hover {
-    animation-play-state: paused;
-  }
-  .marquee-card {
-    flex-shrink: 0;
-    width: 260px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: border-color 0.25s, background 0.25s, transform 0.25s;
-  }
-  .marquee-card:hover {
-    border-color: rgba(192,123,26,0.5);
-    background: rgba(255,255,255,0.07);
-    transform: translateY(-4px);
-  }
+  .hide-scrollbar::-webkit-scrollbar { display: none !important; }
+  .hide-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
 
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none !important;
-  }
-  .hide-scrollbar {
-    -ms-overflow-style: none !important;
-    scrollbar-width: none !important;
-  }
-
+  /* Gallery 4-card grid */
   .galeria-grid {
-    display: flex;
-    gap: 20px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  @media (min-width: 700px) {
+    .galeria-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
   }
   .galeria-card {
-    scroll-snap-align: start;
-    flex-shrink: 0;
-    width: 280px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #1a1c22;
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .galeria-card:hover {
+    border-color: rgba(192,123,26,0.55);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
   }
 
   @media (min-width: 860px) {
@@ -264,10 +229,6 @@ const CSS = `
       overflow-x: visible;
       scroll-snap-type: none;
       padding-bottom: 0;
-    }
-    .galeria-card {
-      width: calc(25% - 15px);
-      flex-grow: 1;
     }
   }
 `
@@ -899,8 +860,6 @@ const GALERIA_ITEMS = [
     tag: 'Comercial',
   },
 ]
-// Duplicate for seamless infinite loop
-const GALERIA_LOOP = [...GALERIA_ITEMS, ...GALERIA_ITEMS]
 
 function NuestraGaleria() {
   const [selectedItem, setSelectedItem] = useState<typeof GALERIA_ITEMS[0] | null>(null)
@@ -927,14 +886,14 @@ function NuestraGaleria() {
         </p>
       </div>
 
-      {/* Infinite Marquee — full bleed, no padding on sides so it feels cinematic */}
-      <div style={{ overflow: 'hidden', padding: '4px 0 24px' }}>
-        <div className="marquee-track">
-          {GALERIA_LOOP.map((item, i) => (
+      {/* 4-card static grid — no duplicates */}
+      <div style={{ padding: '4px var(--pad) 24px' }}>
+        <div className="galeria-grid">
+          {GALERIA_ITEMS.map((item, i) => (
             <div
-              key={`${item.title}-${i}`}
-              onClick={() => setSelectedItem(GALERIA_ITEMS[i % GALERIA_ITEMS.length])}
-              className="marquee-card"
+              key={item.title}
+              onClick={() => setSelectedItem(item)}
+              className="galeria-card"
             >
               {/* Thumbnail */}
               <div style={{ height: 160, background: '#000', position: 'relative', overflow: 'hidden' }}>
@@ -967,7 +926,7 @@ function NuestraGaleria() {
                   <img
                     src={item.src}
                     alt={item.title}
-                    loading="lazy"
+                    loading={i === 0 ? 'eager' : 'lazy'}
                     decoding="async"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
@@ -1003,6 +962,7 @@ function NuestraGaleria() {
           ))}
         </div>
       </div>
+
 
       {/* Lightbox Modal */}
       {selectedItem && (
@@ -1078,8 +1038,7 @@ function NuestraGaleria() {
   )
 }
 
-/* ══════════════════════ ENCUÉNTRANOS (Cobertura + Horario + Contacto fusionados) ══════════════════════ */
-/* ══════════════════════ ENCUÉNTRANOS & CONTACTO (Tabbed Layout) ══════════════════════ */
+/* ══════════════════════ ENCUÉNTRANOS (Cobertura + Horario + Formulario) ══════════════════════ */
 function EncuentraNos({ openPrivacy, openTerms }: { openPrivacy: () => void; openTerms: () => void }) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [mapVisible, setMapVisible] = useState(false)
@@ -1442,271 +1401,6 @@ function LegalModal({ isOpen, onClose, title, content }: LegalModalProps) {
   )
 }
 
-/* ══════════════════════ CONTACT ══════════════════════ */
-function Contact({ openPrivacy, openTerms }: { openPrivacy: () => void; openTerms: () => void }) {
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  const [consent, setConsent] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim() || !phone.trim()) {
-      setError('Por favor, ingresa tu nombre y teléfono.')
-      return
-    }
-    if (!consent) {
-      setError('Debes aceptar el Aviso de Privacidad y los Términos.')
-      return
-    }
-    setError('')
-    setLoading(true)
-
-    // Simulate api request
-    setTimeout(() => {
-      setLoading(false)
-      setSubmitted(true)
-
-      const text = `Hola, mi nombre es ${name}. Solicito una cotización de paneles solares.\nTeléfono: ${phone}\nCorreo: ${email || 'No proporcionado'}\nMensaje: ${message || 'No proporcionado'}`
-      const waUrl = `https://wa.me/${PHONE_RAW}?text=${encodeURIComponent(text)}`
-      window.open(waUrl, '_blank')
-    }, 1200)
-  }
-
-  return (
-    <section id="contacto" style={{ padding: 'var(--section) var(--pad)', background: '#fff', borderTop: '1px solid var(--line)' }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 48, alignItems: 'center' }}>
-          {/* Left Column - Information & Trust */}
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 14 }}>
-              Contacto & Asesoría
-            </p>
-            <h2 style={{
-              fontFamily: 'var(--font-display)', fontWeight: 900,
-              fontSize: 'clamp(28px, 4.5vw, 44px)', color: 'var(--ink)',
-              lineHeight: 1.15, letterSpacing: '-1px', marginBottom: 20,
-            }}>
-              Tu cotización es gratis.<br />Sin compromiso.
-            </h2>
-            <p style={{ fontSize: 15, color: 'var(--ink-3)', lineHeight: 1.7, marginBottom: 32 }}>
-              Completa el formulario y uno de nuestros ingenieros expertos en Guadalajara evaluará tu caso para ofrecerte el mejor sistema de ahorro a tu medida.
-            </p>
-
-            {/* Trust Badges */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32 }}>
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--amber-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Shield size={16} color="var(--amber)" />
-                </div>
-                <div>
-                  <h4 style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>Cifrado SSL de 256 bits</h4>
-                  <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>Tus datos personales están 100% protegidos y son estrictamente confidenciales.</p>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--amber-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Zap size={16} color="var(--amber)" />
-                </div>
-                <div>
-                  <h4 style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>Propuesta en menos de 2 horas</h4>
-                  <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>Recibe un estudio preliminar de ahorro rápido por correo o WhatsApp.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Direct buttons */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-              <a href={WA_URL} target="_blank" rel="noreferrer" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: '#25D366', color: '#fff', fontWeight: 600, fontSize: 14,
-                padding: '12px 22px', borderRadius: 8, transition: 'filter 0.2s',
-                boxShadow: '0 4px 12px rgba(37, 211, 102, 0.2)',
-              }}
-                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(0.9)'}
-                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-              >
-                <MessageCircle size={16} /> WhatsApp Directo
-              </a>
-              <a href={`tel:${PHONE_RAW}`} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: 'var(--bg-2)', color: 'var(--ink)', fontWeight: 600, fontSize: 14,
-                padding: '12px 22px', borderRadius: 8, border: '1px solid var(--line)',
-                transition: 'background 0.2s',
-              }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-3)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-2)'}
-              >
-                <Phone size={16} /> Llamar ahora
-              </a>
-            </div>
-          </div>
-
-          {/* Right Column - Premium Form Card */}
-          <div style={{
-            background: 'var(--bg-2)', border: '1px solid var(--line)',
-            borderRadius: 16, padding: '32px 28px',
-            boxShadow: 'var(--shadow-md)',
-            position: 'relative',
-          }}>
-            {submitted ? (
-              <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: '50%', background: 'var(--amber-light)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px',
-                }}>
-                  <CheckCircle size={32} color="var(--amber)" />
-                </div>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--ink)', marginBottom: 8 }}>
-                  ¡Solicitud Enviada!
-                </h3>
-                <p style={{ fontSize: 14, color: 'var(--ink-3)', lineHeight: 1.6, marginBottom: 20 }}>
-                  Hemos recibido tus datos de forma segura. Te abriremos una conversación en WhatsApp para coordinar tu propuesta de inmediato.
-                </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  style={{
-                    background: 'none', border: 'none', color: 'var(--amber)',
-                    fontWeight: 600, fontSize: 13, cursor: 'pointer',
-                  }}
-                >
-                  Enviar otra solicitud
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: 'var(--ink)', marginBottom: 4 }}>
-                  Solicita tu Estudio de Ahorro
-                </h3>
-                <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 8 }}>
-                  Déjanos tus datos y te contactaremos a la brevedad.
-                </p>
-
-                {error && (
-                  <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 6, color: '#b91c1c', fontSize: 13, fontWeight: 500 }}>
-                    {error}
-                  </div>
-                )}
-
-                <div>
-                  <label htmlFor="form-name" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
-                    Nombre completo <span style={{ color: 'var(--amber)' }}>*</span>
-                  </label>
-                  <input
-                    id="form-name"
-                    type="text"
-                    required
-                    placeholder="Ej. Juan Pérez"
-                    className="form-input"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="form-phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
-                    Número de teléfono <span style={{ color: 'var(--amber)' }}>*</span>
-                  </label>
-                  <input
-                    id="form-phone"
-                    type="tel"
-                    required
-                    placeholder="Ej. 33 1234 5678"
-                    className="form-input"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="form-email" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
-                    Correo electrónico <span style={{ fontSize: 10, color: 'var(--ink-4)', fontWeight: 400 }}>(Opcional)</span>
-                  </label>
-                  <input
-                    id="form-email"
-                    type="email"
-                    placeholder="Ej. juan@correo.com"
-                    className="form-input"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="form-msg" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
-                    Mensaje / Detalles de consumo <span style={{ fontSize: 10, color: 'var(--ink-4)', fontWeight: 400 }}>(Opcional)</span>
-                  </label>
-                  <textarea
-                    id="form-msg"
-                    rows={3}
-                    placeholder="Ej. Mi recibo CFE sale en $3,000 pesos..."
-                    className="form-input"
-                    style={{ resize: 'vertical', fontFamily: 'inherit' }}
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                  />
-                </div>
-
-                {/* Consent Checkbox */}
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 4 }}>
-                  <input
-                    id="form-consent"
-                    type="checkbox"
-                    required
-                    checked={consent}
-                    onChange={e => setConsent(e.target.checked)}
-                    style={{ marginTop: 3, cursor: 'pointer', width: 15, height: 15, accentColor: 'var(--amber)' }}
-                  />
-                  <label htmlFor="form-consent" style={{ fontSize: 11, color: 'var(--ink-3)', lineHeight: 1.5, cursor: 'pointer', userSelect: 'none' }}>
-                    Acepto el{' '}
-                    <button type="button" onClick={openPrivacy} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--amber)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
-                      Aviso de Privacidad
-                    </button>{' '}
-                    y los{' '}
-                    <button type="button" onClick={openTerms} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--amber)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
-                      Términos y Condiciones
-                    </button>
-                    . <span style={{ color: 'var(--amber)' }}>*</span>
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    background: 'var(--amber)', color: '#fff', fontWeight: 700,
-                    fontSize: 14, padding: '14px', borderRadius: 8, border: 'none',
-                    cursor: loading ? 'default' : 'pointer', marginTop: 8,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    boxShadow: '0 4px 12px rgba(192, 123, 26, 0.2)',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = 'var(--amber-dark)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(192, 123, 26, 0.3)' } }}
-                  onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = 'var(--amber)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(192, 123, 26, 0.2)' } }}
-                >
-                  {loading ? (
-                    <span>Enviando...</span>
-                  ) : (
-                    <>
-                      <span>Solicitar Cotización Segura</span>
-                      <ChevronRight size={16} />
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-
-      </div>
-    </section>
-  )
-}
 
 /* ══════════════════════ FOOTER ══════════════════════ */
 function Footer({ openPrivacy, openTerms }: { openPrivacy: () => void; openTerms: () => void }) {
