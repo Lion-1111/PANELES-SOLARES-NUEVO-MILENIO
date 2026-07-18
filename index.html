@@ -292,31 +292,154 @@
       #root{min-height:100vh}
       /* Prevent layout shift while fonts load */
       h1,h2,h3{font-family:'Montserrat',system-ui,sans-serif;font-weight:800}
-      /* Hero skeleton — prevents blank screen flash */
-      #hero-skeleton{
-        position:fixed;inset:0;z-index:9999;
-        background:linear-gradient(135deg,#1a1a18 0%,#2d2d2a 50%,#111110 100%);
-        display:flex;align-items:center;justify-content:center;
-        transition:opacity 0.4s ease;
+      /* ── Premium Loader ─────────────────────────────── */
+      #hero-skeleton {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: all;
       }
-      #hero-skeleton.hidden{opacity:0;pointer-events:none}
-      .hs-pulse{
-        width:48px;height:48px;border-radius:50%;
-        background:rgba(192,123,26,0.6);
-        animation:hsPulse 1.2s ease-in-out infinite;
+      /* Two curtain panels */
+      .curtain {
+        position: absolute;
+        inset: 0;
+        background: #0c0e14;
+        transition: transform 0.85s cubic-bezier(0.76, 0, 0.24, 1);
       }
-      @keyframes hsPulse{
-        0%,100%{transform:scale(0.85);opacity:0.5}
-        50%{transform:scale(1.15);opacity:1}
+      .curtain-top    { clip-path: inset(0 0 50% 0); transform-origin: top; }
+      .curtain-bottom { clip-path: inset(50% 0 0 0); transform-origin: bottom; }
+
+      /* Hidden state — curtains fly off */
+      #hero-skeleton.hidden .curtain-top    { transform: translateY(-100%); }
+      #hero-skeleton.hidden .curtain-bottom { transform: translateY(100%);  }
+      #hero-skeleton.hidden { pointer-events: none; }
+
+      /* Content sits above curtains */
+      .loading-container {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: opacity 0.4s ease 0.1s, transform 0.5s ease 0.1s;
+      }
+      #hero-skeleton.hidden .loading-container {
+        opacity: 0;
+        transform: scale(1.08);
+      }
+
+      /* Sun */
+      .sun-glow {
+        position: relative;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sun-glow::after {
+        content: '';
+        position: absolute;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(192,123,26,0.18) 0%, transparent 70%);
+        animation: pulse-glow 2.2s infinite ease-in-out;
+      }
+      .premium-sun {
+        animation: rotate-sun 10s linear infinite;
+        filter: drop-shadow(0 0 10px rgba(192,123,26,0.4));
+      }
+
+      /* Typography */
+      .brand-text {
+        font-family: 'Montserrat', system-ui, sans-serif;
+        font-weight: 800;
+        font-size: 22px;
+        color: #fff;
+        letter-spacing: 5px;
+        margin-bottom: 4px;
+      }
+      .brand-subtext {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-weight: 500;
+        font-size: 10px;
+        color: #C07B1A;
+        letter-spacing: 7px;
+        margin-left: 7px;
+        margin-bottom: 32px;
+        opacity: 0.85;
+      }
+
+      /* Progress bar */
+      .loading-bar {
+        width: 100px;
+        height: 1.5px;
+        background: rgba(255,255,255,0.07);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .loading-bar-progress {
+        width: 45%;
+        height: 100%;
+        background: linear-gradient(90deg, #C07B1A, #f0a832);
+        border-radius: 2px;
+        animation: loading-slide 1.6s infinite ease-in-out;
+      }
+
+      /* Keyframes */
+      @keyframes pulse-glow {
+        0%,100% { transform: scale(0.9);  opacity: 0.5; }
+        50%      { transform: scale(1.15); opacity: 1;   }
+      }
+      @keyframes rotate-sun {
+        from { transform: rotate(0deg);   }
+        to   { transform: rotate(360deg); }
+      }
+      @keyframes loading-slide {
+        0%   { transform: translateX(-140%); opacity: 1;   }
+        60%  { transform: translateX(280%);  opacity: 1;   }
+        61%  { transform: translateX(280%);  opacity: 0;   }
+        62%  { transform: translateX(-140%); opacity: 0;   }
+        63%  { opacity: 1; }
+        100% { transform: translateX(-140%); opacity: 1;   }
       }
     </style>
   </head>
   <body>
-    <!-- Instant loading skeleton while JS boots -->
+    <!-- Premium branded loader with curtain exit -->
     <div id="hero-skeleton" aria-hidden="true">
-      <div class="hs-pulse"></div>
+      <!-- Curtain panels -->
+      <div class="curtain curtain-top"></div>
+      <div class="curtain curtain-bottom"></div>
+
+      <!-- Centered brand content -->
+      <div class="loading-container">
+        <div class="sun-glow">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none"
+               stroke="#C07B1A" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round"
+               class="premium-sun">
+            <circle cx="12" cy="12" r="4" fill="rgba(192,123,26,0.12)" />
+            <path d="M12 2v2"/><path d="M12 20v2"/>
+            <path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/>
+            <path d="M2 12h2"/><path d="M20 12h2"/>
+            <path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </div>
+        <div class="brand-text">MILENIO</div>
+        <div class="brand-subtext">PANELES SOLARES</div>
+        <div class="loading-bar">
+          <div class="loading-bar-progress"></div>
+        </div>
+      </div>
     </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+

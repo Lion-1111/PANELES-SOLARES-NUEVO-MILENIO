@@ -10,9 +10,20 @@ function useDismissSkeleton() {
   useEffect(() => {
     const el = document.getElementById('hero-skeleton')
     if (!el) return
-    el.classList.add('hidden')
-    const timer = setTimeout(() => el.remove(), 500)
-    return () => clearTimeout(timer)
+    
+    // Hold the loading screen for an elegant 1.8s before fading out
+    const fadeTimer = setTimeout(() => {
+      el.classList.add('hidden')
+      
+      // Remove from DOM after opacity transition completes
+      const removeTimer = setTimeout(() => {
+        el.remove()
+      }, 500)
+      
+      return () => clearTimeout(removeTimer)
+    }, 1800)
+    
+    return () => clearTimeout(fadeTimer)
   }, [])
 }
 
