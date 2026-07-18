@@ -98,10 +98,10 @@ const PRODUCTS = [
 ]
 
 const BENEFITS = [
-  { icon: Shield, num: '01', title: '5 años de garantía', desc: 'En equipo e instalación. Si algo falla, lo resolvemos sin costos.' },
-  { icon: Zap, num: '02', title: 'Ahorra desde el día 1', desc: 'La mayoría recupera su inversión en menos de 4 años.' },
-  { icon: Sun, num: '03', title: 'Precio de fábrica', desc: 'Sin distribuidores. El ahorro va directo a tu bolsillo.' },
-  { icon: Phone, num: '04', title: 'Servicio local en GDL', desc: 'Equipo local, respuesta rápida y seguimiento real posventa.' },
+  { icon: Zap, num: '01', title: 'Ahorra desde el día 1', desc: 'La mayoría recupera su inversión en menos de 4 años.' },
+  { icon: Sun, num: '02', title: 'Precio de fábrica', desc: 'Sin distribuidores. El ahorro va directo a tu bolsillo.' },
+  { icon: Shield, num: '03', title: 'Garantía incluida', desc: 'En equipo e instalación. Si algo falla, lo resolvemos sin costos.' },
+  { icon: Phone, num: '04', title: 'Servicio local', desc: 'Equipo local, respuesta rápida y seguimiento real posventa.' },
 ]
 
 const HOURS = [
@@ -410,7 +410,7 @@ function Hero() {
           maxWidth: 460, lineHeight: 1.7, marginBottom: 36,
           animation: 'fadeUp 0.5s 0.12s ease both',
         }}>
-          Instalamos paneles solares con 5 años de garantía. Precio de fábrica y financiamiento disponible.
+          Instalamos paneles solares con garantía total. Precio de fábrica y financiamiento disponible.
         </p>
 
         <div style={{
@@ -450,8 +450,8 @@ function Hero() {
           animation: 'fadeIn 0.7s 0.3s ease both',
         }}>
           {[
-            ['Hasta 80 %', 'ahorro en electricidad'],
-            ['5 años', 'de garantía incluida'],
+            ['Hasta 98 %', 'ahorro en electricidad'],
+            ['Garantía total', 'en equipo e instalación'],
             ['Financiamiento', 'disponible a tu medida'],
             ['Precio', 'directo de fábrica'],
           ].map(([val, label]) => (
@@ -823,25 +823,28 @@ function Benefits() {
           </div>
 
           {/* Right */}
-          <div style={{ flex: 1, minWidth: 0, paddingBottom: 40 }}>
+          <div style={{ flex: 1, minWidth: 0, paddingBottom: 40, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16 }}>
             {BENEFITS.map((item, i) => {
               const Icon = item.icon
               return (
                 <div key={item.num} style={{
-                  display: 'flex', gap: 20, alignItems: 'flex-start',
-                  padding: '24px 0',
-                  borderBottom: i < BENEFITS.length - 1 ? '1px solid var(--line)' : 'none',
+                  display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'flex-start',
+                  padding: '20px 16px',
+                  background: '#fff',
+                  border: '1px solid var(--line)',
+                  borderRadius: 14,
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.03)'
                 }}>
                   <div style={{
-                    width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                    width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                     background: 'var(--amber-light)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     boxShadow: '0 4px 12px rgba(192, 123, 26, 0.15)',
                   }}>
-                    <Icon size={20} color="var(--amber)" strokeWidth={2.5} />
+                    <Icon size={18} color="var(--amber)" strokeWidth={2.5} />
                   </div>
                   <div>
-                    <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 17, color: 'var(--ink)', marginBottom: 6 }}>{item.title}</h3>
-                    <p style={{ fontSize: 14, color: 'var(--ink-3)', lineHeight: 1.65 }}>{item.desc}</p>
+                    <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, color: 'var(--ink)', marginBottom: 6, lineHeight: 1.2 }}>{item.title}</h3>
+                    <p style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5 }}>{item.desc}</p>
                   </div>
                 </div>
               )
@@ -1064,116 +1067,232 @@ function NuestraGaleria() {
   )
 }
 
-/* ══════════════════════ COVERAGE ══════════════════════ */
-function Coverage() {
+/* ══════════════════════ ENCUÉNTRANOS (Cobertura + Horario + Contacto fusionados) ══════════════════════ */
+/* ══════════════════════ ENCUÉNTRANOS & CONTACTO (Tabbed Layout) ══════════════════════ */
+function EncuentraNos({ openPrivacy, openTerms }: { openPrivacy: () => void; openTerms: () => void }) {
+  const mapRef = useRef<HTMLDivElement>(null)
+  const [mapVisible, setMapVisible] = useState(false)
+  const [activeTab, setActiveTab] = useState<'mapa' | 'cobertura' | 'horario'>('mapa')
+
+  // States for Professional Solar Form
+  const [tipo, setTipo] = useState('')
+  const [consumo, setConsumo] = useState('')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [consent, setConsent] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const el = mapRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setMapVisible(true); obs.disconnect() } }, { rootMargin: '200px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [activeTab]) // Re-run when tab switches to map
+
+  const handleSubmit = (ev: React.FormEvent) => {
+    ev.preventDefault()
+    if (!consent) { setError('Debes aceptar el aviso de privacidad.'); return }
+    if (!tipo || !consumo) { setError('Por favor selecciona el tipo de inmueble y tu consumo.'); return }
+    if (!phone.trim()) { setError('El teléfono es obligatorio.'); return }
+    setError('')
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      setSubmitted(true)
+      const text = `Hola, solicito una propuesta técnica sin costo.\n\n*Datos del Proyecto:*\n- Tipo: ${tipo}\n- Recibo bimestral: ${consumo}\n\n*Contacto:*\n- Nombre: ${name}\n- Teléfono: ${phone}`
+      window.open(`https://wa.me/${PHONE_RAW}?text=${encodeURIComponent(text)}`, '_blank')
+    }, 900)
+  }
+
   return (
-    <section id="cobertura" style={{ padding: 'var(--section) var(--pad)', background: '#fff' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div className="cov-grid" style={{ display: 'grid', gap: 48, alignItems: 'start' }}>
+    <section id="contacto" style={{ padding: 'calc(var(--section) * 0.8) var(--pad)', background: 'linear-gradient(to bottom, #fff, #f9f9f9)', borderTop: '1px solid var(--line)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 44 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 10 }}>
+            MILENIO Paneles Solares
+          </p>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(28px,6vw,46px)', color: 'var(--ink)', lineHeight: 1.1, letterSpacing: '-0.8px' }}>
+            Descubre tu Ahorro
+          </h2>
+          <p style={{ fontSize: 16, color: 'var(--ink-3)', marginTop: 12, maxWidth: 600, margin: '12px auto 0' }}>
+            Obtén una propuesta técnica y financiera gratuita. Instala hoy y deja de pagar recibos caros a CFE.
+          </p>
+        </div>
 
-          {/* Left */}
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12 }}>
-              Cobertura
-            </p>
-            <h2 style={{
-              fontFamily: 'var(--font-display)', fontWeight: 900,
-              fontSize: 'clamp(26px,4vw,40px)', color: 'var(--ink)',
-              lineHeight: 1.1, letterSpacing: '-0.6px', marginBottom: 14,
-            }}>
-              Zona Metropolitana<br />de Guadalajara
-            </h2>
-            <p style={{ fontSize: 15, color: 'var(--ink-3)', lineHeight: 1.75, marginBottom: 32 }}>
-              Visita técnica gratuita para evaluar tu instalación, sin compromiso.
-            </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 40, alignItems: 'start' }}>
+          
+          {/* LEFT: Professional Solar Form */}
+          <div style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 16, padding: '32px 24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)' }}>
+            {submitted ? (
+              <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                <div style={{ width: 64, height: 64, background: 'var(--amber-light)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                  <CheckCircle size={32} color="var(--amber)" />
+                </div>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: 'var(--ink)', marginBottom: 10 }}>¡Solicitud Recibida!</h3>
+                <p style={{ fontSize: 15, color: 'var(--ink-3)', lineHeight: 1.6, marginBottom: 24 }}>Estamos procesando tu información. Te abriremos una conversación en WhatsApp para entregarte tu propuesta técnica.</p>
+                <button onClick={() => setSubmitted(false)} style={{ background: 'none', border: 'none', color: 'var(--amber)', fontWeight: 600, fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Nueva solicitud</button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                <div style={{ marginBottom: 4 }}>
+                  <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: 'var(--ink)', marginBottom: 4 }}>Cotizador Rápido</h3>
+                  <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>Completa el formulario y recibe tu proyección de ahorro.</p>
+                </div>
 
-            <div>
-              {ZONES.map((z, i) => (
-                <div key={z.name} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 14,
-                  padding: '16px 0',
-                  borderBottom: i < ZONES.length - 1 ? '1px solid var(--line)' : 'none',
-                }}>
-                  <div style={{
-                    width: 34, height: 34, borderRadius: 8,
-                    background: 'var(--amber-light)', border: '1px solid var(--line)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <MapPin size={15} color="var(--amber)" />
+                {error && <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 8, color: '#b91c1c', fontSize: 13 }}>{error}</div>}
+
+                {/* Solar Fields */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', marginBottom: 6 }}>¿Dónde instalarás los paneles? <span style={{ color: 'var(--amber)' }}>*</span></label>
+                    <select className="form-input" required value={tipo} onChange={e => setTipo(e.target.value)} style={{ padding: '14px 16px', appearance: 'auto' }}>
+                      <option value="">Selecciona una opción...</option>
+                      <option value="Casa Habitacion">Casa Habitación</option>
+                      <option value="Negocio Comercial">Negocio Comercial</option>
+                      <option value="Industria / Bodega">Industria / Bodega</option>
+                    </select>
                   </div>
-                  <div>
-                    <p style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)', marginBottom: 2 }}>{z.name}</p>
-                    <p style={{ fontSize: 12, color: 'var(--ink-4)' }}>{z.desc}</p>
+                  
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', marginBottom: 6 }}>Recibo de luz bimestral <span style={{ color: 'var(--amber)' }}>*</span></label>
+                    <select className="form-input" required value={consumo} onChange={e => setConsumo(e.target.value)} style={{ padding: '14px 16px', appearance: 'auto' }}>
+                      <option value="">Aproximado en pesos...</option>
+                      <option value="Menos de $1,500">Menos de $1,500 MXN</option>
+                      <option value="$1,500 a $3,500">$1,500 a $3,500 MXN</option>
+                      <option value="$3,500 a $6,000">$3,500 a $6,000 MXN</option>
+                      <option value="Más de $6,000">Más de $6,000 MXN</option>
+                    </select>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                {/* Contact Fields */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 4 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', marginBottom: 6 }}>Nombre <span style={{ color: 'var(--amber)' }}>*</span></label>
+                    <input type="text" required placeholder="Juan Pérez" className="form-input" value={name} onChange={e => setName(e.target.value)} style={{ padding: '14px 16px' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', marginBottom: 6 }}>WhatsApp <span style={{ color: 'var(--amber)' }}>*</span></label>
+                    <input type="tel" required placeholder="33 1234 5678" className="form-input" value={phone} onChange={e => setPhone(e.target.value)} style={{ padding: '14px 16px' }} />
+                  </div>
+                </div>
+
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginTop: 8, padding: '4px 0' }}>
+                  <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--amber)', width: 16, height: 16, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.5 }}>
+                    Acepto el{' '}
+                    <button type="button" onClick={openPrivacy} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--amber)', fontWeight: 600, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Aviso de Privacidad</button>
+                    {' '}y autorizo ser contactado con mi cotización.
+                  </span>
+                </label>
+
+                <button type="submit" disabled={loading} style={{ background: 'var(--amber)', color: '#fff', fontWeight: 800, fontSize: 15, padding: '16px', borderRadius: 10, border: 'none', cursor: loading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, transition: 'all 0.25s', boxShadow: '0 6px 20px rgba(192, 123, 26, 0.25)' }}
+                  onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = 'var(--amber-dark)'; e.currentTarget.style.transform = 'translateY(-2px)' } }}
+                  onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = 'var(--amber)'; e.currentTarget.style.transform = 'none' } }}
+                >
+                  {loading ? 'Generando Propuesta...' : <><span>Obtener Propuesta Gratuita</span><Zap size={18} fill="#fff" /></>}
+                </button>
+              </form>
+            )}
           </div>
 
-          {/* Map — deferred until visible */}
-          <LazyMap />
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function LazyMap() {
-  const { ref, inView } = useInView<HTMLDivElement>()
-  return (
-    <div
-      ref={ref}
-      style={{
-        borderRadius: 14, overflow: 'hidden',
-        border: '1px solid var(--line)',
-        boxShadow: 'var(--shadow-md)',
-        height: 400,
-        background: '#f0ede6',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}
-    >
-      {inView ? (
-        <iframe
-          title="Zona Metropolitana de Guadalajara"
-          src="https://maps.google.com/maps?q=Guadalajara+Jalisco+Mexico&output=embed&z=11&hl=es"
-          width="100%" height="100%"
-          style={{ border: 0, display: 'block' }}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
-      ) : (
-        <MapPin size={28} color="var(--amber)" />
-      )}
-    </div>
-  )
-}
-
-/* ══════════════════════ HOURS ══════════════════════ */
-function Hours() {
-
-  return (
-    <section style={{ padding: 'calc(var(--section) * 0.7) var(--pad)', background: 'var(--bg-2)', borderTop: '1px solid var(--line)' }}>
-      <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-        <div style={{
-          width: 42, height: 42, borderRadius: 10, background: 'var(--amber-light)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
-        }}>
-          <Clock size={20} color="var(--amber)" />
-        </div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: 'var(--ink)', marginBottom: 6 }}>Horario de atención</h2>
-        <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 28 }}>Estamos listos para atenderte</p>
-
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--line)', overflow: 'hidden' }}>
-          {HOURS.map((h, i) => (
-            <div key={h.day} className="hours-card" style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '16px 24px',
-              borderBottom: i < HOURS.length - 1 ? '1px solid var(--line)' : 'none',
-            }}>
-              <span style={{ fontWeight: 500, fontSize: 14, color: 'var(--ink-2)' }}>{h.day}</span>
-              <span style={{ fontWeight: 600, fontSize: 14, color: h.open ? 'var(--ink)' : 'var(--ink-4)' }}>{h.range}</span>
+          {/* RIGHT: Tabbed Information Display */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            
+            {/* Tabs Navigation */}
+            <div style={{ display: 'flex', background: 'var(--bg-2)', borderRadius: 12, padding: 6, gap: 6, border: '1px solid var(--line)' }}>
+              {[
+                { id: 'mapa', icon: MapPin, label: 'Mapa' },
+                { id: 'cobertura', icon: Shield, label: 'Cobertura' },
+                { id: 'horario', icon: Clock, label: 'Horario' }
+              ].map(tab => {
+                const isActive = activeTab === tab.id
+                const Icon = tab.icon
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    style={{
+                      flex: 1, padding: '12px 0', borderRadius: 8, border: 'none',
+                      background: isActive ? '#fff' : 'transparent',
+                      color: isActive ? 'var(--amber)' : 'var(--ink-3)',
+                      fontWeight: isActive ? 700 : 600, fontSize: 13, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      boxShadow: isActive ? '0 2px 10px rgba(0,0,0,0.05)' : 'none',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <Icon size={16} color={isActive ? "var(--amber)" : "var(--ink-4)"} />
+                    {tab.label}
+                  </button>
+                )
+              })}
             </div>
-          ))}
+
+            {/* Tabs Content */}
+            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--line)', height: 420, position: 'relative' }}>
+              
+              {/* MAPA TAB */}
+              <div style={{ display: activeTab === 'mapa' ? 'block' : 'none', width: '100%', height: '100%' }} ref={mapRef}>
+                {mapVisible ? (
+                  <iframe
+                    title="Zona de Cobertura"
+                    src="https://maps.google.com/maps?q=Guadalajara+Jalisco+Mexico&output=embed&z=11&hl=es"
+                    width="100%" height="100%"
+                    style={{ border: 0, display: 'block' }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0ede6' }}>
+                    <MapPin size={32} color="var(--amber)" />
+                  </div>
+                )}
+              </div>
+
+              {/* COBERTURA TAB */}
+              <div style={{ display: activeTab === 'cobertura' ? 'block' : 'none', padding: '32px', height: '100%', overflowY: 'auto' }}>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--ink)', marginBottom: 8 }}>Zona Metropolitana</h3>
+                <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 24, lineHeight: 1.6 }}>Llegamos a tu domicilio sin costo de viáticos para evaluaciones técnicas.</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {ZONES.map((z, i) => (
+                    <div key={z.name} style={{ display: 'flex', gap: 14, paddingBottom: 16, borderBottom: i < ZONES.length - 1 ? '1px solid var(--line)' : 'none' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--amber-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <MapPin size={16} color="var(--amber)" />
+                      </div>
+                      <div>
+                        <p style={{ fontWeight: 800, fontSize: 15, color: 'var(--ink)', marginBottom: 4 }}>{z.name}</p>
+                        <p style={{ fontSize: 13, color: 'var(--ink-4)', lineHeight: 1.4 }}>{z.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* HORARIO TAB */}
+              <div style={{ display: activeTab === 'horario' ? 'flex' : 'none', flexDirection: 'column', padding: '32px', height: '100%', overflowY: 'auto' }}>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--ink)', marginBottom: 8 }}>Horario de Atención</h3>
+                <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 24, lineHeight: 1.6 }}>Soporte técnico y atención comercial en los siguientes horarios.</p>
+                <div style={{ background: 'var(--bg-2)', borderRadius: 12, border: '1px solid var(--line)', padding: '0 20px' }}>
+                  {HOURS.map((h, i) => (
+                    <div key={h.day} style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 0', borderBottom: i < HOURS.length - 1 ? '1px solid var(--line)' : 'none' }}>
+                      <span style={{ fontSize: 15, color: 'var(--ink-2)', fontWeight: 600 }}>{h.day}</span>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: h.open ? 'var(--ink)' : 'var(--ink-4)' }}>{h.range}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 'auto', paddingTop: 24, textAlign: 'center' }}>
+                   <p style={{ fontSize: 13, color: 'var(--ink-4)' }}>Para emergencias de mantenimiento, comunícate por WhatsApp.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1588,7 +1707,7 @@ function Footer({ openPrivacy, openTerms }: { openPrivacy: () => void; openTerms
             <Sun size={16} color="#fff" strokeWidth={2.2} />
           </div>
           <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, color: '#fff' }}>
-            Solar<span style={{ color: 'var(--amber)' }}>GDL</span>
+            MILENIO <span style={{ color: 'var(--amber)' }}>PANELES SOLARES</span>
           </span>
         </div>
 
@@ -1656,9 +1775,7 @@ export default function SolarLanding() {
         <Products />
         <Benefits />
         <NuestraGaleria />
-        <Coverage />
-        <Hours />
-        <Contact openPrivacy={() => setPrivacyOpen(true)} openTerms={() => setTermsOpen(true)} />
+        <EncuentraNos openPrivacy={() => setPrivacyOpen(true)} openTerms={() => setTermsOpen(true)} />
       </main>
       <Footer openPrivacy={() => setPrivacyOpen(true)} openTerms={() => setTermsOpen(true)} />
       <WhatsAppFAB />

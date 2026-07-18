@@ -1,8 +1,41 @@
+# ═══════════════════════════════════════════════════
+# MILENIO PANELES SOLARES — robots.txt
+# https://www.nuevomileniopanelessolares.com/
+# ═══════════════════════════════════════════════════
+
+# Todos los crawlers: acceso completo al sitio
 User-agent: *
 Allow: /
 
+# Bloquear rutas innecesarias para indexación
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /*.json$
+Disallow: /*.ts$
+Disallow: /*.tsx$
+
+# Crawl-delay recomendado
+Crawl-delay: 1
+
+# ── Crawlers específicos ──────────────────────────
+
+# Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Google Images
+User-agent: Googlebot-Image
+Allow: /
+
+# Google Videos
+User-agent: Googlebot-Video
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
 # Sitemap
 Sitemap: https://www.nuevomileniopanelessolares.com/sitemap.xml
-
-# Crawl-delay
-Crawl-delay: 1

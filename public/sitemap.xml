@@ -1,11 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Página principal -->
   <url>
     <loc>https://www.nuevomileniopanelessolares.com/</loc>
-    <lastmod>2026-07-12</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="es-MX" href="https://www.nuevomileniopanelessolares.com/"/>
+    <image:image>
+      <image:loc>https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200</image:loc>
+      <image:title>Instalación de Paneles Solares en Guadalajara — MILENIO PANELES SOLARES</image:title>
+      <image:caption>Sistemas fotovoltaicos residenciales y comerciales en Guadalajara, Zapopan, Tlaquepaque y Tonalá</image:caption>
+    </image:image>
   </url>
+
+  <!-- Sección: Cotización / Contacto -->
+  <url>
+    <loc>https://www.nuevomileniopanelessolares.com/#contacto</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Sección: Productos -->
+  <url>
+    <loc>https://www.nuevomileniopanelessolares.com/#productos</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Sección: Beneficios / Por qué nosotros -->
+  <url>
+    <loc>https://www.nuevomileniopanelessolares.com/#beneficios</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Sección: Cobertura -->
+  <url>
+    <loc>https://www.nuevomileniopanelessolares.com/#cobertura</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
